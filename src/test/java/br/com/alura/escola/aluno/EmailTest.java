@@ -1,6 +1,7 @@
-package br.com.alura.escola;
+package br.com.alura.escola.aluno;
 
 
+import br.com.alura.escola.aluno.Email;
 import org.junit.jupiter.api.Test;
 
 
