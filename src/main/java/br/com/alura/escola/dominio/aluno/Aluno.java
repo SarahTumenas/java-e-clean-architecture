@@ -31,13 +31,15 @@ public class Aluno {
         return nome;
     }
 
-    public CPF getCpf() {
-        return cpf;
+    public String getCpf() {
+        return cpf.getNumero();
     }
 
-    public Email getEmail() {
-        return email;
+    public String getEmail() {
+        return email.getEndereco();
     }
 
-
+    public List<Telefone> getTelefones() {
+        return telefones;
+    }
 }
