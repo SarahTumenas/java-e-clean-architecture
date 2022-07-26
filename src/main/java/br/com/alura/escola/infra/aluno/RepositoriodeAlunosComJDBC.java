@@ -1,13 +1,12 @@
 package br.com.alura.escola.infra.aluno;
 
-import br.com.alura.escola.dominio.aluno.Aluno;
-import br.com.alura.escola.dominio.aluno.CPF;
-import br.com.alura.escola.dominio.aluno.RepositorioDeAlunos;
-import br.com.alura.escola.dominio.aluno.Telefone;
+import br.com.alura.escola.dominio.aluno.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RepositoriodeAlunosComJDBC implements RepositorioDeAlunos {
@@ -45,14 +44,72 @@ public class RepositoriodeAlunosComJDBC implements RepositorioDeAlunos {
 
     @Override
     public Aluno buscarPorCPF(CPF cpf) {
-        // TODO Auto-generated method stub
-        return null;
+
+        try {
+            String sql = "SELECT id, nome, cpf, email FROM ALUNO WHERE cpf = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setString(1, cpf.getNumero());
+
+            ResultSet rs = ps.executeQuery();
+            boolean encontrou = rs.next();
+            if (!encontrou) {
+                throw new AlunoNaoEncontrado(cpf);
+            }
+
+            String nome = rs.getString("nome");
+            Email email = new Email(rs.getString("email"));
+            Aluno encontrado = new Aluno(nome, cpf, email);
+
+            Long id = rs.getLong("id");
+            sql = "SELECT ddd, numero FROM TELEFONE WHERE aluno_id = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setLong(1, id);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String ddd = rs.getString("ddd");
+                String numero = rs.getString("numero");
+                encontrado.adicionarTelefone(ddd, numero);
+            }
+            return encontrado;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<Aluno> listarTodosAlunosMatriculados() {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            String sql = "SELECT id, cpf, nome, email FROM ALUNO";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            List<Aluno> alunos = new ArrayList<>();
+            while (rs.next()) {
+
+                String nome = rs.getString("nome");
+                CPF cpf = new CPF(rs.getString("cpf"));
+                Email email = new Email(rs.getString("email"));
+                Aluno aluno = new Aluno(nome, cpf, email);
+
+                Long id = rs.getLong("id");
+                sql = "SELECT ddd, numero FROM TELEFONE WHERE aluno_id = ?";
+                PreparedStatement psTelefone = connection.prepareStatement(sql);
+                psTelefone.setLong(1, id);
+                ResultSet rsTelefone = psTelefone.executeQuery();
+                while (rsTelefone.next()) {
+
+                    String ddd = rsTelefone.getString("ddd");
+                    String numero = rsTelefone.getString("numero");
+                    aluno.adicionarTelefone(ddd, numero);
+                }
+
+                alunos.add(aluno);
+            }
+
+            return alunos;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
