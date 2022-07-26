@@ -14,6 +14,8 @@ public class Aluno {
 
     private Email email;
 
+    private String senha;
+
     private List<Telefone> telefones = new ArrayList<>();
 
     public Aluno(String nome, CPF cpf, Email email) {
@@ -41,5 +43,9 @@ public class Aluno {
 
     public List<Telefone> getTelefones() {
         return telefones;
+    }
+
+    public String getSenha() {
+        return senha;
     }
 }
